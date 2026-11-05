@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://ce1ace8rga36x"]
+
+[ext_resource type="SpriteFrames" path="res://scenes/resetbot_frames.tres" id="1"]
+[ext_resource type="Script" uid="uid://bpkt8gw7tdaqb" path="res://scripts/resetbot.gd" id="2"]
+[ext_resource type="Shader" uid="uid://d14bltdg7slp2" path="res://scripts/idle_feet.gdshader" id="3"]
+
+[sub_resource type="ShaderMaterial" id="IdleFeet"]
+shader = ExtResource("3")
+shader_parameter/align_idle = true
+
+[node name="Resetbot" type="AnimatedSprite2D" unique_id=1265898109]
+texture_filter = 1
+material = SubResource("IdleFeet")
+position = Vector2(400, 300)
+sprite_frames = ExtResource("1")
+animation = &"jump"
+autoplay = "idle"
+script = ExtResource("2")
