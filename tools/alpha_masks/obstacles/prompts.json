@@ -1,0 +1,36 @@
+{
+  "tool": "built-in imagegen",
+  "transparent_background": true,
+  "edits": [
+    {
+      "source": "images/obstacles/camrouter.png",
+      "mask": "tools/alpha_masks/obstacles/camrouter.png",
+      "prompt": "Use case: background-extraction. Extract the supplied pixel-art equipment on a truly transparent RGBA background. This is an alpha-mask editing task, not redesign. Keep the exact 1254x1254 canvas, EXACT original positions and sizes, colors, black silhouette outlines, details and proportions of ALL equipment. Remove only the dark blue background and ALL ground cast shadows outside the objects. Do not move or redraw objects. Preserve holes and spaces between wires as transparency. There are two separate groups: the upper suspended camera with its mounting brackets/cables/USB ends, and the lower stacked laptops and Wi-Fi router. Keep both groups at their original coordinates with a clear transparent gap. Remove the red translucent scan-light cone under the camera; keep only solid equipment. No white border, no halo, no text added, no new equipment, no cropped parts, no checkerboard painted into the image. Original RGB will be retained using your alpha, so pixel coordinates must match perfectly."
+    },
+    {
+      "source": "images/obstacles/computer.png",
+      "mask": "tools/alpha_masks/obstacles/computer.png",
+      "prompt": "Use case: background-extraction. Extract the supplied pixel-art equipment on a truly transparent RGBA background. This is an alpha-mask editing task, not redesign. Keep the exact 1254x1254 canvas, EXACT original positions and sizes, colors, black silhouette outlines, details and proportions of ALL equipment. Remove only the dark blue background and ALL ground cast shadows outside the objects. Do not move or redraw objects. Preserve holes and spaces between wires as transparency.  No white border, no halo, no text added, no new equipment, no cropped parts, no checkerboard painted into the image. Original RGB will be retained using your alpha, so pixel coordinates must match perfectly."
+    },
+    {
+      "source": "images/obstacles/hightower.png",
+      "mask": "tools/alpha_masks/obstacles/hightower.png",
+      "prompt": "Use case: background-extraction. Extract the supplied pixel-art equipment on a truly transparent RGBA background. This is an alpha-mask editing task, not redesign. Keep the exact 1254x1254 canvas, EXACT original positions and sizes, colors, black silhouette outlines, details and proportions of ALL equipment. Remove only the dark blue background and ALL ground cast shadows outside the objects. Do not move or redraw objects. Preserve holes and spaces between wires as transparency.  No white border, no halo, no text added, no new equipment, no cropped parts, no checkerboard painted into the image. Original RGB will be retained using your alpha, so pixel coordinates must match perfectly."
+    },
+    {
+      "source": "images/obstacles/perifericos.png",
+      "mask": "tools/alpha_masks/obstacles/perifericos.png",
+      "prompt": "Use case: background-extraction. Extract the supplied pixel-art equipment on a truly transparent RGBA background. This is an alpha-mask editing task, not redesign. Keep the exact 1254x1254 canvas, EXACT original positions and sizes, colors, black silhouette outlines, details and proportions of ALL equipment. Remove only the dark blue background and ALL ground cast shadows outside objects. Do not move or redraw objects. Preserve holes and spaces between wires as transparency.   No white border, no halo, no new text or equipment, no cropped parts, no checkerboard painted into the image. Original RGB will be retained using your alpha, so pixel coordinates must match perfectly."
+    },
+    {
+      "source": "images/obstacles/printer.png",
+      "mask": "tools/alpha_masks/obstacles/printer.png",
+      "prompt": "Use case: background-extraction. Extract the supplied pixel-art equipment on a truly transparent RGBA background. This is an alpha-mask editing task, not redesign. Keep the exact 1254x1254 canvas, EXACT original positions and sizes, colors, black silhouette outlines, details and proportions of ALL equipment. Remove only the dark blue background and ALL ground cast shadows outside objects. Do not move or redraw objects. Preserve holes and spaces between wires as transparency. There are TWO separate groups: the upper overhead network switch/rail with hanging cables, and the lower printer. Keep both at their original coordinates; keep a transparent gap between them. Remove the floor texture and floor line under the printer.  No white border, no halo, no new text or equipment, no cropped parts, no checkerboard painted into the image. Original RGB will be retained using your alpha, so pixel coordinates must match perfectly."
+    },
+    {
+      "source": "images/obstacles/repair_station.png",
+      "mask": "tools/alpha_masks/obstacles/repair_station.png",
+      "prompt": "Use case: background-extraction. Extract the supplied pixel-art equipment on a truly transparent RGBA background. This is an alpha-mask editing task, not redesign. Keep the exact 1254x1254 canvas, EXACT original positions and sizes, colors, black silhouette outlines, details and proportions of ALL equipment. Remove only the dark blue background and ALL ground cast shadows outside objects. Do not move or redraw objects. Preserve holes and spaces between wires as transparency.  Keep the entire repair arch: both support pillars, articulated arms, top warning light and central hanging display. Make the open space UNDER the central screen transparent, with no ground shadow. No white border, no halo, no new text or equipment, no cropped parts, no checkerboard painted into the image. Original RGB will be retained using your alpha, so pixel coordinates must match perfectly."
+    }
+  ]
+}

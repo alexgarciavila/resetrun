@@ -5,13 +5,15 @@ asset_variant = "transparent" if "--original-outline" in sys.argv else "no_outli
 specs={
  'run':('run_resetbot.png',[(x,75,230,230) for x in (55,320,575,825,1080,1325,1575,1810)],12,True),
  'jump':('jump_resetbot.png',[(i*256,150,256,340) for i in range(8)],(8 / 0.7),False),
+ 'double_jump':('double_jump_resetbot.png',[(left,300,right-left,330) for left,right in zip((20,235,440,640,835,1030,1240,1450),(235,440,640,835,1030,1240,1450,1672))],8,False),
+ 'slide':('slide_low_resetbot.png',[(left,300,right-left,280) for left,right in zip((20,264,542,820,1101,1377,1640,1885),(264,542,820,1101,1377,1640,1885,2140))],12,False),
  'idle':('idle_resetbot.png',[(x,125,240,360) for x in (30,285,535,790,1040,1290,1540,1790)],6,True),
  'game_over':('gameover_resetbot.png',[(x,225,245,255) for x in (45,310,550,790,1035,1285,1535,1785)],8,False),
  'hit':('gameover_resetbot.png',[(x,225,245,255) for x in (45,310,550)],12,False),
 }
 # Coordinates were measured on 2048-wide previews; source sheets are 2172 wide.
 for name, (file, rects, fps, loop) in list(specs.items()):
- if file != 'run_resetbot.png':
+ if file not in ('run_resetbot.png', 'double_jump_resetbot.png', 'slide_low_resetbot.png'):
   factor = 2172 / 2048
   rects = [tuple(round(v * factor) for v in rect) for rect in rects]
   specs[name] = (file, rects, fps, loop)

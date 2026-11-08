@@ -2,13 +2,14 @@ extends AnimatedSprite2D
 ## Call these methods from the movement controller.
 @export var reference_run_speed: float = 360.0
 # Match head width, rather than total pose height (crouching must stay crouched).
-const HEAD_WIDTHS := {&"run": 185.0, &"idle": 228.0, &"jump": 191.0, &"hit": 175.0, &"game_over": 175.0}
+const HEAD_WIDTHS := {&"run": 185.0, &"idle": 228.0, &"jump": 191.0, &"double_jump": 160.0, &"slide": 200.0, &"hit": 175.0, &"game_over": 175.0}
 const DISPLAY_HEAD_WIDTH := 102.0
 var _anchors: Dictionary = {}
+var _slide_held := false
 
 
 func set_ground_motion(horizontal_speed: float) -> void:
-	if animation in [&"jump", &"hit", &"game_over"] and is_playing():
+	if animation in [&"jump", &"double_jump", &"slide", &"hit", &"game_over"] and is_playing():
 		return
 	if absf(horizontal_speed) < 0.1:
 		speed_scale = 1.0
@@ -26,13 +27,40 @@ func show_hit() -> void:
 	speed_scale = 1.0
 	play(&"hit")
 
+
+func start_double_jump(duration_seconds: float) -> void:
+	speed_scale = 1.0
+	# Reuse the upright jump poses for the second impulse, without a somersault.
+	stop()
+	play(&"jump", (sprite_frames.get_frame_count(&"jump") / sprite_frames.get_animation_speed(&"jump")) / maxf(duration_seconds, 0.01))
+
 func show_game_over() -> void:
 	speed_scale = 1.0
 	play(&"game_over")
 
+
+func start_slide() -> void:
+	_slide_held = true
+	speed_scale = 1.0
+	stop()
+	play(&"slide")
+
+
+func release_slide() -> void:
+	_slide_held = false
+	if animation == &"slide" and not is_playing():
+		play()
+
+
+func _hold_slide_pose() -> void:
+	if animation == &"slide" and _slide_held and frame == 5:
+		frame = 4
+		pause()
+
 func _ready() -> void:
 	animation_changed.connect(_update_idle_alignment)
 	frame_changed.connect(_update_geometry)
+	frame_changed.connect(_hold_slide_pose)
 	z_index = 10
 	_update_idle_alignment()
 
