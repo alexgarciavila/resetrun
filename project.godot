@@ -10,7 +10,8 @@ config_version=5
 
 [application]
 
-config/name="Resetbot"
+config/name="Reset Run"
+boot_splash/show_image=false
 run/main_scene="res://scenes/game.tscn"
 config/features=PackedStringArray("4.7")
 
@@ -20,7 +21,15 @@ window/size/viewport_width=1100
 window/size/viewport_height=640
 window/stretch/mode="canvas_items"
 
+[physics]
+
+common/physics_interpolation=true
+
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
+
+[internationalization]
+
+locale/fallback="ca"
