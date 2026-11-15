@@ -206,7 +206,7 @@ func verify() -> void:
 	for i in range(3):
 		game.invincible = 0.0
 		game.obstacles.clear()
-		game.obstacles.append(game._make_obstacle("computer", game.PLAYER_X))
+		game.obstacles.append(game._make_obstacle("datacenter_firewall", game.PLAYER_X))
 		game._physics_process(1.0 / 60.0)
 		assert(game.bot.modulate.a == 1.0, "Character must remain opaque after damage")
 		assert(game.obstacles.is_empty(), "Consumed obstacle must not cover character")
@@ -234,7 +234,7 @@ func verify() -> void:
 	game.vertical_speed = -100.0
 	game.invincible = 0.6
 	game.spawn_in = 0.8
-	game.obstacles.append(game._make_obstacle("computer", 900))
+	game.obstacles.append(game._make_obstacle("datacenter_firewall", 900))
 	game.distance = 1000.0
 	game._update_endless_world()
 	assert(game.world.id == "datacenter" and game.world_segment == 1)

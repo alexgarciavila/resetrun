@@ -1,8 +1,8 @@
 # Evil AI robot asset
 
-Generated with the built-in imagegen tool; preserved with its original transparent alpha at `images/obstacles/prepared/evil_ai_robot.png`. Original output: `exec-770c9071-45ac-40e3-a2ac-8b79dbc212e3.png`.
+Generated with the built-in imagegen tool; preserved with its original transparent alpha at `images/obstacles/prepared/datacenter/evil_ai_robot.png`. Original output: `exec-770c9071-45ac-40e3-a2ac-8b79dbc212e3.png`.
 
-The static red/steel robot has a large IA chest plate. It uses the existing double-jump collision profile at 220 pixels high, alternating with the tower, and the standard contrast outline and orange action cue. Automated checks verify standing and single jumps collide, while double jumps clear it at 360 and 720 px/s. The export preset explicitly includes the texture.
+The static red/steel robot has a large IA chest plate. It uses the existing double-jump collision profile at 220 pixels high, appearing only in the datacenter, and the standard contrast outline and orange action cue. Automated checks verify standing and single jumps collide, while double jumps clear it at 360 and 720 px/s. The export preset explicitly includes the texture.
 
 ## Generation prompt
 

@@ -1,57 +1,37 @@
 # Obstacle assets and gameplay
 
-The six supplied 1254 × 1254 originals in `images/obstacles/` remain unchanged. Built-in imagegen extracted their alpha masks into `tools/alpha_masks/obstacles/`; exact prompts are saved in that directory's `prompts.json`. `tools/prepare_obstacles.ps1` composites original RGB using alpha ≥ 128, splits multi-group sheets and crops with two pixels of transparent padding.
+## Organization
 
-## Prepared sprites
+Playable sprites live in `images/obstacles/prepared/<world>/`. Supplied source artwork is preserved unchanged in `images/obstacles/sources/<world>/`; source sheets are named `sheet.png`. Source artwork is not included in the web export.
 
-All runtime sprites are in `images/obstacles/prepared/`:
+There are 39 playable source sprites plus six composed passage variants (45 catalog entries). Each world family has six new sprites and its own passage variant, plus these retained sprites:
 
-| Sprite | Source | Role |
+| Sprite | Folder and world | Role |
 | --- | --- | --- |
-| `computer.png` | computer | Single jump |
-| `peripherals.png` | perifericos | Single jump |
-| `laptops_router.png` | camrouter, lower group | Single jump |
-| `printer.png` | printer, lower group | Single jump |
-| `tower.png` | hightower | Double jump |
-| `camera.png` | camrouter, upper group | Slide scanner |
-| `cables.png` | printer, upper group | Slide scanner |
-| `repair_gate.png` | repair_station | Slide scanner |
+| evil_ai_robot.png | datacenter | Double jump |
+| peripherals.png | taller | Single jump |
+| printer.png | oficina | Single jump |
 
-Connected peripheral groups remain grouped; the separated upper/lower objects get independent textures. Backgrounds and cast shadows are removed. The original scan cone is excluded from the camera extraction because its gameplay field is rendered separately.
+Magatzem 2 and Taller 2 share the assets of their respective families. All other legacy prepared sprites have been removed from the catalog, export and playable asset folders.
 
-## Gameplay geometry
+## Preparation
 
-`scripts/obstacle_catalog.gd` defines uniform sprite scaling, type, clearance, collision region and Catalan action cue. Ground equipment is 54–82 pixels high; the 220-pixel tower exceeds the single-jump limit. Suspended devices have an explicit red scanning region reaching the ceiling and leave 66 pixels clear above the floor. This visible region prevents bypassing the slide challenge with a jump; decorative brackets and cables do not introduce hidden collision boxes. The fully extended player has 52-pixel clearance, so entry/recovery poses still collide.
+`tools/new_obstacles.json` records the 36 new names and actions. `python3 tools/prepare_new_obstacles.py` splits the transparent sheets in `tools/alpha_masks/new_obstacles/`, crops each piece and adds transparent padding (requires Pillow). `tools/prepare_obstacles.ps1` rebuilds only the retained peripherals and printer from the original RGB and the alpha masks in `tools/alpha_masks/obstacles/`. The robot retains its generated transparent artwork; see `EVIL_AI_ROBOT_ASSET.md`.
 
-Obstacle positions and collision boxes use the current world's ground line, including during Endless transitions. One global shuffled bag contains every individual obstacle exactly once. The same obstacle cannot repeat across bag boundaries. This gives equal frequency to individual assets rather than maneuver categories. Restart clears the bag and previous ID.
+## Geometry and selection
 
-## Additional obstacle and pacing
+`scripts/obstacle_catalog.gd` defines textures, floor-relative collision boxes, heights and Catalan action cues. Low obstacles render at 54–82 pixels high, tall obstacles at 180; the robot renders at 220. Each world has at least two ceiling and two double-jump variants. Keyboard/headphones, network equipment, a motherboard, a bench and a planter also serve as hanging hazards; the monitor, tool case and bollard are enlarged for double jumping. Suspended devices leave 66 pixels below them and hang from visible cables, without a red scanning field. Both the device and its supporting cable column block jumping over the slide challenge.
 
-`images/obstacles/prepared/power_crate.svg` is an original pixel-style energy crate with transparent padding. It renders at 78 pixels high and requires a single jump, using the same outline and cue treatment as the supplied equipment. The catalog preloads it and the web export preset explicitly includes it.
+Each world has its own shuffled bag. Every eligible obstacle appears once per bag, with no immediate repeat across bag boundaries. World changes discard the remaining bag while retaining obstacles already on screen. Restart clears selection state. Spacing uses a 500–580 pixel gap plus sprite width, with another 280 pixels after double-jump obstacles; distance consumed tracks actual running speed.
 
-Spacing uses a 500–580 pixel gap plus the preceding sprite width. Tall double-jump obstacles receive a fixed additional 280 pixels for landing. These distances never scale with speed: the countdown is consumed by distance traveled, using normalized START_SPEED units. Faster running reduces arrival time without increasing separation.
+## Validation and export
 
-## Checks
+- `tools/check_obstacles.gd` checks all 45 variants, transparent padding, required maneuvers at 360 and 720 px/s, world assignments and shuffled bags.
+- `tools/check_game.gd` checks jumping, sliding, damage, restart and world transitions.
+- `tools/preview_obstacles.gd -- <world>` renders a sample of that world's hazards into `tools/previews/`.
 
-- `tools/check_obstacles.gd` simulates correct/incorrect moves for all eleven assets at 360 and 720 px/s, plus ten full fair-selection cycles, distance-based spacing, transparent padding and reset.
-- `tools/check_game.gd` covers slide posture, damage, restart, double jump and world transitions.
-- `tools/check_obstacles_web.cjs` checks exported loading and captures live introductory obstacles.
-- `tools/preview_obstacles.gd` renders the three challenge levels into `tools/previews/obstacles.png`.
+`export_presets.cfg` explicitly includes all 39 playable textures. After changing a path or adding a texture, update this list and verify loading and gameplay in an actual browser.
 
-The web export preset explicitly includes the new catalog and all eleven textures, avoiding missing-preload failures in release builds.
+Each composed passage reuses two textures from its world: a 45-pixel floor piece and an overhead piece ending 250 pixels above ground. The opening admits the normal jump arc; tests verify that standing, sliding and an early double jump collide at both tested speeds. The upper piece hangs from cables, without laser fields or new bitmap files.
 
-## Readability treatment
-
-Scenery is darkened by 18% before drawing the hazards, character and UI. The original obstacle pixels retain their colors. At startup, native image operations cache white alpha silhouettes; drawing these at screen-space offsets creates a 1.25-pixel pale outline with a 2.5-pixel dark outer rim. This keeps contrast on both light and dark worlds without editing any sprite files or altering collision geometry.
-
-Action badges retain arrows/text and add yellow (jump), orange (double jump) and turquoise (slide) colors. Busy-world previews can be generated with `tools/preview_obstacles.gd -- taller2` or `-- magatzem2`.
-
-## Single-jump window
-
-Every variant, including the gate, has a random position in the global shuffled bag. No particular variant is forced first.
-
-`jump_gate.svg` is a code-native mechanical laser gate with a 100 × 300 canvas. It joins the jump pool and displays `↑ NOMÉS UN SALT`. Two independent collision rectangles share a central 40-pixel column: the bottom occupies the lowest 45 pixels; the upper field extends from 250 pixels above ground to the ceiling. Red bands visibly match both regions, while turquoise arrows identify the safe middle window. Both collision rectangles stay relative to each world's floor, including in Endless mode. Tests verify a single jump clears it at initial and maximum speed, while standing, sliding and a double jump collide.
-
-## Frame pacing
-
-Physics stays fixed-step; custom background, foreground streaks and obstacle drawing interpolate each rendered frame. Scenery interpolation wraps across tile boundaries, while collision geometry stays at its simulation position. Character transforms use built-in physics interpolation. F3 toggles measured game FPS, average frame time and worst frame time over each one-second sample. Run `node tools/check_fps_web.cjs` to collect browser frame intervals and capture the game counter; headless results do not establish physical-display performance.
+The game draws pale inner and dark outer silhouettes for contrast without editing sprite colors. Yellow, orange and turquoise badges indicate jump, double jump and slide respectively. Physics uses fixed steps; visible positions interpolate between those steps.

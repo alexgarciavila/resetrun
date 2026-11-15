@@ -13,9 +13,15 @@ func capture() -> void:
 		game.settings.selected_world = args[0]
 	game._apply_preferences()
 	game._start_run()
-	game.obstacles.append(game._make_obstacle("jump_gate", 335))
-	game.obstacles.append(game._make_obstacle("evil_ai_robot", 585))
-	game.obstacles.append(game._make_obstacle("repair_gate", 770))
+	var pool = game.ObstacleCatalog.ids_for_world(game.world.id)
+	pool.reverse()
+	var wanted := ["double_jump", "jump", "slide"]
+	for slot in range(3):
+		for id in pool:
+			var obstacle = game._make_obstacle(id, 340 + slot * 235)
+			if obstacle.kind == wanted[slot]:
+				game.obstacles.append(obstacle)
+				break
 	game.queue_redraw()
 	for frame in range(3):
 		await process_frame
