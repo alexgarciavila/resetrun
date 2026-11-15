@@ -108,7 +108,8 @@ func _ready() -> void:
 func _prepare_obstacle_silhouettes() -> void:
 	# Build once with native image operations; the source sprites stay untouched.
 	for definition in ObstacleCatalog.DEFINITIONS:
-		var mask: Image = definition.texture.get_image()
+		var texture: Texture2D = ObstacleCatalog.create(definition.id, 0).texture
+		var mask: Image = texture.get_image()
 		if mask.is_compressed():
 			mask.decompress()
 		var white := Image.create(mask.get_width(), mask.get_height(), false, Image.FORMAT_RGBA8)
@@ -127,6 +128,7 @@ func _apply_preferences() -> void:
 
 func _set_world(id: String) -> void:
 	world = WorldCatalog.get_world(id)
+	obstacle_bag.clear()
 	# Keep each floor visible, including the deep foreground in workshop scenes.
 	background_height = world.background_height
 	ground_y = maxf(FLOOR_Y, background_height * float(world.walkway_ratio))
@@ -253,8 +255,7 @@ func _obstacle_hits(obstacle: Dictionary, body: Rect2) -> bool:
 
 func _spawn_obstacle() -> void:
 	if obstacle_bag.is_empty():
-		for definition in ObstacleCatalog.DEFINITIONS:
-			obstacle_bag.append(definition.id)
+		obstacle_bag.assign(ObstacleCatalog.ids_for_world(world.id))
 		obstacle_bag.shuffle()
 		if obstacle_bag[-1] == last_obstacle_id:
 			var first := obstacle_bag[0]
@@ -465,28 +466,21 @@ func _draw_obstacle(obstacle: Dictionary) -> void:
 	if state == "running":
 		obstacle.x = lerpf(obstacle.get("previous_x", obstacle.x), obstacle.x, Engine.get_physics_interpolation_fraction())
 	var sprite_rect := Rect2(Vector2(obstacle.x, ground_y + obstacle.draw_y), obstacle.draw_size)
-	if obstacle.has("upper_hitbox"):
-		for local_box in [obstacle.hitbox, obstacle.upper_hitbox]:
-			var field: Rect2 = local_box
-			field.position += Vector2(obstacle.x, ground_y)
-			field = field.intersection(Rect2(0, 0, 1100, ground_y))
-			if not field.has_area():
-				continue
-			draw_rect(field, Color(1.0, 0.12, 0.20, 0.22))
-			draw_rect(field, Color("ff5464"), false, 2.0)
-			for y in range(int(field.position.y), int(field.end.y), 12):
-				draw_line(Vector2(field.position.x, y), Vector2(field.end.x, y), Color(1, 0.3, 0.35, 0.6), 2)
+	if obstacle.has("ceiling"):
+		var ceiling: Dictionary = obstacle.ceiling.duplicate()
+		ceiling.x = obstacle.x + obstacle.ceiling_offset
+		_draw_obstacle(ceiling)
 	if obstacle.kind == "slide":
-		var sensor := _obstacle_rect(obstacle)
-		var visible_top := maxf(0, sensor.position.y)
-		var visible := Rect2(sensor.position.x, visible_top, sensor.size.x, sensor.end.y - visible_top)
-		draw_rect(visible, Color(1.0, 0.12, 0.20, 0.10))
-		for edge in [visible.position.x, visible.end.x]:
-			draw_line(Vector2(edge, visible_top), Vector2(edge, visible.end.y), Color(1.0, 0.20, 0.25, 0.7), 2)
-		for y in range(int(visible_top), int(visible.end.y), 24):
-			draw_line(Vector2(visible.position.x, y), Vector2(visible.end.x, y), Color(1.0, 0.20, 0.25, 0.2), 1)
-		draw_line(Vector2(visible.position.x, visible.end.y), visible.end, Color("65e7cb"), 2)
-	var silhouette: Texture2D = obstacle_silhouettes[obstacle.id]
+		# Paired load-bearing cables connect each suspended device to the ceiling.
+		var support_width: float = obstacle.hitbox.size.x
+		var center_x := sprite_rect.get_center().x
+		for side in [-1.0, 1.0]:
+			var cable_x: float = center_x + side * support_width * 0.5
+			var anchor := Vector2(cable_x, maxf(56.0, sprite_rect.position.y + 10.0))
+			draw_line(Vector2(cable_x, 56), anchor, Color("10151f"), 7.0)
+			draw_line(Vector2(cable_x - 1, 56), anchor - Vector2(1, 0), Color("8995a7"), 2.0)
+			draw_rect(Rect2(anchor - Vector2(5, 3), Vector2(10, 8)), Color("404b5d"))
+	var silhouette: Texture2D = obstacle_silhouettes[obstacle.get("floor_id", obstacle.id)]
 	for direction in OUTLINE_DIRECTIONS:
 		var outer := sprite_rect
 		outer.position += direction * 2.5
@@ -496,11 +490,13 @@ func _draw_obstacle(obstacle: Dictionary) -> void:
 		inner.position += direction * 1.25
 		draw_texture_rect(silhouette, inner, false, Color(0.87, 0.97, 1.0, 0.92))
 	draw_texture_rect(obstacle.texture, sprite_rect, false)
+	if obstacle.get("hide_label", false):
+		return
 	var font: Font = hud.get_theme_font("font")
 	var text_width := font.get_string_size(obstacle.label, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
 	var at := Vector2(obstacle.x + (float(obstacle.draw_size.x) - text_width) * 0.5, sprite_rect.position.y - 16)
 	if obstacle.kind == "slide":
-		at.y = ground_y - obstacle.clearance - 22
+		at.y = sprite_rect.position.y - 16
 	var cue_color: Color = {"jump": Color("ffdf72"), "double_jump": Color("ffad66"), "slide": Color("7bf0de")}[obstacle.kind]
 	var badge := Rect2(at + Vector2(-6, -14), Vector2(text_width + 12, 22))
 	draw_rect(badge, Color(0.035, 0.05, 0.08, 0.96))

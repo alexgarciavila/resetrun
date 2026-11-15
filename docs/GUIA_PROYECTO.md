@@ -144,3 +144,19 @@ Verificaci�n: importaci�n Godot 4.7.2, prueba de juego PASS y captura renderizad
 Ajuste actual: 360 px/s al empezar, 540 a los 400 m y límite de 720 a los 800 m. Fórmula lineal limitada, configurable en START_SPEED, MAX_SPEED y METERS_TO_MAX_SPEED de scripts/game.gd. Distancia integrada con delta; no depende de los FPS. El fondo pasa del 35 % al 80 % de la velocidad de carrera y se añaden trazos discretos en primer plano bajo la pasarela, sin modificar los sprites. Run conserva 12 fps al inicio y alcanza 24 fps al límite; salto mantiene su duración física. HUD muestra multiplicador de velocidad. Se conserva la separación temporal mínima de obstáculos de 1,35 s, superior al salto de 0,8 s.
 
 Pruebas: progresión a 0/400/800/10000 m, límite y reinicio, además de la suite previa: PASS. Pendiente valoración jugable de la curva por el usuario.
+
+### Obstáculos por escenario — 15/11/2026
+
+Se incorporan las seis láminas de `images/obstacles/NewObstacles/`, conservando los originales. Cada una aporta seis piezas independientes con alfa en `images/obstacles/prepared/<escenario>/`. Las transparencias intermedias se conservan en `tools/alpha_masks/new_obstacles/`; `python3 tools/prepare_new_obstacles.py` reproduce los recortes descritos en `tools/new_obstacles.json` (requiere Pillow).
+
+El catálogo asigna piezas bajas a salto simple y piezas altas o apiladas a doble salto. Los dispositivos suspendidos se atraviesan por debajo con lliscada y se sujetan con dos cables visibles hasta el techo; se elimina el campo rojo de escaneo. Almacén 2 y Taller 2 comparten las piezas de su familia. Cada escenario tiene su propia bolsa de aparición y el cambio de mundo descarta la bolsa anterior, conservando los obstáculos que ya están en pantalla.
+
+Validación: importación y exportación web completadas; tools/check_game.gd y tools/check_obstacles.gd pasan, incluyendo las 36 piezas nuevas a 360 y 720 px/s, maniobra obligatoria, transparencia y bolsas por mundo. Capturas revisadas en tools/previews/obstacles_<escenario>.png, con suspensión por cables y alfa sin fondo. El chequeo de obstáculos informa recursos retenidos al cerrar; las aserciones terminan en PASS.
+
+Corrección web: el filtro explícito de export_presets.cfg omitía las 36 texturas nuevas. Se añaden al paquete. Verificación real con Playwright y Brave en modo headless: menú cargado, partida iniciada, distancia y obstáculos nuevos renderizados, sin errores de scripts ni recursos del juego ausentes. Evidencia local: /tmp/resetrun-web-menu.png y /tmp/resetrun-web-play.png.
+
+Organización actual: 39 obstáculos jugables en images/obstacles/prepared/<escenario>/. Se retiran todos los antiguos salvo evil_ai_robot (datacenter), peripherals (taller y taller2) y printer (oficina). Originales conservados en images/obstacles/sources/<escenario>/, sustituyendo la carpeta NewObstacles. Catálogo, generadores, pruebas y exportación actualizados a las nuevas rutas.
+
+Variedad: 45 variantes con las 39 texturas existentes. Cada mundo dispone de al menos dos obstáculos de techo y dos de doble salto. Monitor, maletín y bolardo se amplían; varios equipos y mobiliario se suspenden por cables. Se añaden seis pasos combinados de suelo (45 px) y techo (borde inferior a 250 px) que permiten salto simple y bloquean lliscada y doble salto. Chequeo de obstáculos PASS a 360 y 720 px/s, incluidas las nuevas combinaciones.
+
+Ajuste visual de datacenter: network_switch y rack_servers suspendidos pasan de 100 a 72 px de altura (28 % menores), conservando proporciones, cables y 66 px de paso inferior. Chequeo de obstáculos PASS y captura actualizada en tools/previews/obstacles_datacenter.png.

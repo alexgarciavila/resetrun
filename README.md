@@ -35,11 +35,11 @@ Hi ha tres tipus de repte, identificats amb una indicació sobre l'obstacle:
 | --- | --- |
 | **↑ SALT** | Salta els equips baixos, impressores i perifèrics. |
 | **↑↑ DOBLE SALT** | Fes un segon impuls a l'aire per superar les torres altes i el robot maligne amb «IA» al pit. |
-| **↓ LLISCA** | Estira't i mantén la lliscada sota els dispositius suspesos i la seva zona vermella d'escaneig. |
+| **↓ LLISCA** | Estira't i mantén la lliscada sota els dispositius penjats amb cables. |
 
-La porta **↑ NOMÉS UN SALT** bloqueja la part inferior i superior amb làsers. Travessa l'obertura central amb un salt simple: lliscar et fa tocar la base i el segon impuls et porta contra el làser superior.
+Els obstacles **↑ NOMÉS UN SALT** combinen una peça al terra amb una altra penjada al sostre. Fes un salt simple per passar pel mig: lliscar toca la base i el doble salt toca la peça superior.
 
-Espera a sortir completament de la zona d'escaneig abans d'aixecar-te. La lliscada no et protegeix dels obstacles de terra.
+Espera a passar completament el dispositiu abans d'aixecar-te. La lliscada no et protegeix dels obstacles de terra.
 
 ## Mons
 

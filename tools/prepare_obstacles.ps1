@@ -28,16 +28,10 @@ public class ObstacleAlpha {
 }
 "@
 $items = @(
-    @('camrouter','camera',0,760),
-    @('camrouter','laptops_router',760,1254),
-    @('computer','computer',0,1254),
-    @('hightower','tower',0,1254),
-    @('perifericos','peripherals',0,1254),
-    @('printer','cables',0,625),
-    @('printer','printer',625,1254),
-    @('repair_station','repair_gate',0,1254)
+    @('taller/perifericos','taller/peripherals','perifericos',0,1254),
+    @('oficina/printer','oficina/printer','printer',625,1254)
 )
 New-Item -ItemType Directory -Force (Join-Path $projectRoot 'images/obstacles/prepared') | Out-Null
 foreach($item in $items) {
-    [ObstacleAlpha]::Apply((Join-Path $projectRoot "images/obstacles/$($item[0]).png"),(Join-Path $projectRoot "tools/alpha_masks/obstacles/$($item[0]).png"),(Join-Path $projectRoot "images/obstacles/prepared/$($item[1]).png"),$item[2],$item[3])
+    [ObstacleAlpha]::Apply((Join-Path $projectRoot "images/obstacles/sources/$($item[0]).png"),(Join-Path $projectRoot "tools/alpha_masks/obstacles/$($item[2]).png"),(Join-Path $projectRoot "images/obstacles/prepared/$($item[1]).png"),$item[3],$item[4])
 }

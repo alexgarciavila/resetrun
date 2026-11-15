@@ -46,7 +46,7 @@ func verify() -> void:
 	game.state = "ready"
 	assert(game._render_scroll(20.0, 0.8, 100.0, 0.5) == 20.0, "Stopped scenery must not interpolate")
 	for definition in game.ObstacleCatalog.DEFINITIONS:
-		var image: Image = definition.texture.get_image()
+		var image: Image = game.ObstacleCatalog.create(definition.id, 0).texture.get_image()
 		assert(image.get_pixel(0, 0).a == 0.0, "Prepared sprite must have transparent padding")
 		for test_speed in [360.0, 720.0]:
 			assert(not simulate(definition.id, "none", test_speed), "Standing must hit " + definition.id)
@@ -54,25 +54,39 @@ func verify() -> void:
 			if definition.kind == "double_jump":
 				assert(not simulate(definition.id, "jump", test_speed), "Single jump must not clear " + definition.id)
 			elif definition.kind == "slide":
-				assert(not simulate(definition.id, "jump", test_speed), "Suspended scanner must require sliding")
-				assert(not simulate(definition.id, "double_jump", test_speed), "Scanner must not be bypassed with a double jump")
-			if definition.id == "jump_gate":
-				assert(not simulate(definition.id, "double_jump", test_speed), "Upper field must block double jump")
-				assert(not simulate(definition.id, "slide", test_speed), "Lower field must block sliding")
-	game._reset()
-	var previous := ""
-	for cycle in range(10):
-		var seen: Dictionary = {}
-		for index in range(game.ObstacleCatalog.DEFINITIONS.size()):
-			game._spawn_obstacle()
-			var obstacle: Dictionary = game.obstacles[-1]
-			assert(not seen.has(obstacle.id), "Every individual obstacle must appear exactly once per bag")
-			assert(previous != obstacle.id, "Bag boundaries must not repeat the same obstacle")
-			seen[obstacle.id] = true
-			previous = obstacle.id
-			var gap: float = game.spawn_in * game.START_SPEED - obstacle.draw_size.x
-			var extra := 280.0 if obstacle.kind == "double_jump" else 0.0
-			assert(gap >= 499.99 + extra and gap <= 580.01 + extra)
+				assert(not simulate(definition.id, "jump", test_speed), "Hanging device must require sliding")
+				assert(not simulate(definition.id, "double_jump", test_speed), "Supporting cables must block double jumping")
+			if definition.has("ceiling_id"):
+				assert(not simulate(definition.id, "double_jump", test_speed), "Passage ceiling must block double jump: " + definition.id)
+				assert(not simulate(definition.id, "slide", test_speed), "Passage floor must block sliding: " + definition.id)
+	assert(game.ObstacleCatalog.DEFINITIONS.size() == 45)
+	assert("evil_ai_robot" in game.ObstacleCatalog.ids_for_world("datacenter"))
+	assert("peripherals" in game.ObstacleCatalog.ids_for_world("taller"))
+	assert("printer" in game.ObstacleCatalog.ids_for_world("oficina"))
+	for definition in game.ObstacleCatalog.DEFINITIONS:
+		assert(game.ObstacleCatalog.create(definition.id, 0).texture.resource_path.get_base_dir().get_file() in definition.worlds)
+	for world_definition in game.WorldCatalog.WORLDS:
+		game._reset()
+		game._set_world(world_definition.id)
+		var pool = game.ObstacleCatalog.ids_for_world(world_definition.id)
+		assert(pool.size() >= 6, "Each world must include its new sprites")
+		var counts := {"jump": 0, "double_jump": 0, "slide": 0}
+		for id in pool:
+			counts[game.ObstacleCatalog.create(id, 0).kind] += 1
+		assert(counts.slide >= 2 and counts.double_jump >= 2, "Every world needs ceiling and tall variety")
+		var previous := ""
+		for cycle in range(3):
+			var seen: Dictionary = {}
+			for index in range(pool.size()):
+				game._spawn_obstacle()
+				var obstacle: Dictionary = game.obstacles[-1]
+				assert(obstacle.id in pool, "Wrong scenery for obstacle")
+				assert(not seen.has(obstacle.id), "Bag must include each world obstacle once")
+				assert(previous != obstacle.id, "Bag boundaries must not repeat")
+				seen[obstacle.id] = true
+				previous = obstacle.id
+		game._set_world("datacenter" if world_definition.id != "datacenter" else "botiga")
+		assert(game.obstacle_bag.is_empty(), "Changing scenery must discard the old spawn bag")
 	for test_speed in [360.0, 720.0]:
 		game._reset()
 		game._start_run()
@@ -92,5 +106,5 @@ func verify() -> void:
 	game.queue_free()
 	await process_frame
 	await create_timer(0.1).timeout
-	print("PASS: all transparent assets, all three maneuvers at initial/max speed, single-vs-double height, scanner clearance, denser spacing and reset")
+	print("PASS: all transparent assets, all three maneuvers at initial/max speed, single-vs-double height, hanging clearance, world-specific spawn bags, spacing and reset")
 	quit()
