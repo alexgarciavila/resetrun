@@ -164,6 +164,7 @@ func _start_run() -> void:
 	world_notice_time = 0.0
 	_set_world(settings.selected_world)
 	state = "running"
+	audio.start_music()
 	message.text = ""
 	settings.show_start_menu(false)
 	_update_hud()
@@ -355,6 +356,7 @@ func _place_bot() -> void:
 	bot.position = Vector2(PLAYER_X, ground_y + height)
 
 func _end_run() -> void:
+	audio.stop_music()
 	state = "dying"
 	world_notice_time = 0.0
 	message.text = ""
@@ -381,6 +383,7 @@ func _on_animation_finished() -> void:
 		_update_hud()
 
 func _reset() -> void:
+	audio.stop_music()
 	state = "ready"
 	distance = 0.0
 	lives = 3

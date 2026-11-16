@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://denp752kxvpnw"
+path="res://.godot/imported/Arcade Pulse.mp3-dea9b0cf7b30d853457f0b59e2ed99c2.mp3str"
+
+[deps]
+
+source_file="res://music/Arcade Pulse.mp3"
+dest_files=["res://.godot/imported/Arcade Pulse.mp3-dea9b0cf7b30d853457f0b59e2ed99c2.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -160,3 +160,14 @@ Organización actual: 39 obstáculos jugables en images/obstacles/prepared/<esce
 Variedad: 45 variantes con las 39 texturas existentes. Cada mundo dispone de al menos dos obstáculos de techo y dos de doble salto. Monitor, maletín y bolardo se amplían; varios equipos y mobiliario se suspenden por cables. Se añaden seis pasos combinados de suelo (45 px) y techo (borde inferior a 250 px) que permiten salto simple y bloquean lliscada y doble salto. Chequeo de obstáculos PASS a 360 y 720 px/s, incluidas las nuevas combinaciones.
 
 Ajuste visual de datacenter: network_switch y rack_servers suspendidos pasan de 100 a 72 px de altura (28 % menores), conservando proporciones, cables y 66 px de paso inferior. Chequeo de obstáculos PASS y captura actualizada en tools/previews/obstacles_datacenter.png.
+
+
+## Música de carrera — 15 de noviembre de 2026
+
+- Original conservado en `music/Arcade Pulse.mp3` (3.201.594 bytes, 2:17,6, estéreo a 48 kHz).
+- Recurso de juego: `audio/arcade_pulse.ogg`, Ogg Vorbis calidad 4 (2.165.980 bytes, reducción del 32,3 %), sin portada ni metadatos del original. Conversión: `ffmpeg -i "music/Arcade Pulse.mp3" -vn -c:a libvorbis -q:a 4 -map_metadata -1 audio/arcade_pulse.ogg`. Al partir de MP3 existe una nueva compresión con pérdida; se conserva el original para futuras conversiones.
+- La música comienza desde cero al iniciar cada carrera y se repite mediante el bucle del recurso. Se detiene al perder la última vida y al volver al menú. La prueba de efectos no inicia música. Mantiene los controles de volumen y silencio.
+- El preset web exporta el Ogg; el MP3 original y la antigua música WAV no forman parte de los recursos seleccionados para exportar.
+- Validación: importación, `tools/check_game.gd` (inicio, bucle, menú, Game Over y reinicio) y exportación web mediante `tools/export_web.ps1` completadas. La transición musical en la unión del bucle queda pendiente de valoración auditiva.
+
+Validación adicional: `tools/check_web.cjs` PASS en Edge; salida real de música durante la carrera, silencio tras reinicio y ajustes persistentes.

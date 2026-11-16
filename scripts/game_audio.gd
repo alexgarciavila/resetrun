@@ -1,6 +1,6 @@
 extends Node
 
-const MUSIC := preload("res://audio/music.wav")
+const MUSIC := preload("res://audio/arcade_pulse.ogg")
 const EFFECTS := {
 	"jump": preload("res://audio/jump.wav"),
 	"hit": preload("res://audio/hit.wav"),
@@ -23,12 +23,10 @@ func _ready() -> void:
 			AudioServer.set_bus_send(AudioServer.bus_count - 1, "Master")
 	music_player = AudioStreamPlayer.new()
 	music_player.bus = "Music"
-	var loop: AudioStreamWAV = MUSIC.duplicate()
-	loop.loop_mode = AudioStreamWAV.LOOP_FORWARD
-	loop.loop_end = roundi(loop.get_length() * loop.mix_rate)
+	var loop: AudioStreamOggVorbis = MUSIC.duplicate()
+	loop.loop = true
 	music_player.stream = loop
 	add_child(music_player)
-	music_player.finished.connect(func(): music_player.play())
 	for index in range(4):
 		var player := AudioStreamPlayer.new()
 		player.bus = "Effects"
@@ -37,10 +35,17 @@ func _ready() -> void:
 
 
 func activate() -> void:
-	# Start only after a player gesture, including on the web.
-	if not activated:
-		activated = true
-		music_player.play()
+	# Unlock effects after a player gesture without starting the race music.
+	activated = true
+
+
+func start_music() -> void:
+	activate()
+	music_player.play(0.0)
+
+
+func stop_music() -> void:
+	music_player.stop()
 
 
 func apply_settings(music_volume: float, effects_volume: float, music_muted: bool, effects_muted: bool, all_muted: bool) -> void:
