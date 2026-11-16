@@ -21,6 +21,7 @@ const METERS_TO_MAX_SPEED := 800.0
 const BACKGROUND_SPEED_RATIO := 0.80
 
 const SAVE_PATH := "user://record.cfg"
+const INVULNERABILITY_DURATION := 1.5
 
 @onready var bot = $Resetbot
 @onready var hud: Label = $UI/HUD
@@ -34,6 +35,7 @@ var speed := START_SPEED
 var distance := 0.0
 var best := 0
 var lives := 3
+@onready var life_icons: Array[TextureRect] = [$UI/Lives/Heart1, $UI/Lives/Heart2, $UI/Lives/Heart3]
 var height := 0.0
 var vertical_speed := 0.0
 var jumps_used := 0
@@ -53,11 +55,11 @@ var obstacles_spawned := 0
 var obstacle_bag: Array[String] = []
 var last_obstacle_id := ""
 var obstacle_silhouettes: Dictionary = {}
-var world: Dictionary = WorldCatalog.get_world("datacenter")
+var world: Dictionary = WorldCatalog.get_world("vendrell")
 var ground_y := FLOOR_Y
 var background_height := BACKGROUND_HEIGHT
 var foreground_fade: GradientTexture2D
-var endless_mode := false
+var endless_mode := true
 var route_worlds: Array[String] = []
 var route_start := 0
 var world_segment := 0
@@ -334,7 +336,7 @@ func _physics_process(delta: float) -> void:
 		elif invincible == 0.0 and _obstacle_hits(obstacles[i], body):
 			obstacles.remove_at(i)
 			lives -= 1
-			invincible = 1.5
+			invincible = INVULNERABILITY_DURATION
 			hit_time = 0.25
 			if lives <= 0:
 				_end_run()
@@ -343,8 +345,12 @@ func _physics_process(delta: float) -> void:
 			sliding = false
 			bot.release_slide()
 			audio.play_effect("hit")
-	# Keep Resetbot fully opaque, including the fatal-hit frame.
-	bot.modulate = Color(1.0, 0.85, 0.75, 1.0) if invincible > 0.0 and state == "running" else Color.WHITE
+	# Three soft pulses per second; keep the character visible throughout.
+	if invincible > 0.0 and state == "running":
+		var pulse := 0.5 + 0.5 * cos((INVULNERABILITY_DURATION - invincible) * TAU * 3.0)
+		bot.modulate = Color(0.65, 0.95, 1.0, lerpf(0.45, 1.0, pulse))
+	else:
+		bot.modulate = Color.WHITE
 	_place_bot()
 	_update_hud()
 	queue_redraw()
@@ -409,15 +415,18 @@ func _reset() -> void:
 	bot.modulate = Color.WHITE
 	bot.speed_scale = 1.0
 	bot.play(&"idle")
-	message.text = "RESET RUN"
+	message.text = ""
 	settings.show_start_menu(true)
 	_place_bot()
 	_update_hud()
 	queue_redraw()
 
 func _update_hud() -> void:
+	$UI/Logo.visible = state == "ready"
 	var title := "SENSE FI" if endless_mode else "RESET RUN"
-	hud.text = "%s  %05d m  RÈCORD %05d  VIDES %d  VELOCITAT ×%.2f" % [title, int(distance), best, lives, speed / START_SPEED]
+	hud.text = "%s  %05d m  RÈCORD %05d  VELOCITAT ×%.2f" % [title, int(distance), best, speed / START_SPEED]
+	for i in range(life_icons.size()):
+		life_icons[i].modulate = Color.WHITE if i < lives else Color(0.35, 0.35, 0.4, 0.5)
 	if endless_mode:
 		var remaining := ceili(WORLD_INTERVAL - fmod(distance, WORLD_INTERVAL))
 		bottom_status.text = "SENSE FI · %s · SEGÜENT EN %04d m" % [world.title.to_upper(), remaining]

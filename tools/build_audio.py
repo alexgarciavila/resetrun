@@ -49,9 +49,16 @@ def music():
     save("music.wav", samples)
 
 
+def game_over():
+    # Use the actual soundtrack for the musical defeat sting.
+    from build_game_over import main
+    main()
+
+
 if __name__ == "__main__":
     music()
     cue("jump.wav", [440, 554, 659, 880], 0.18)
-    cue("hit.wav", [180, 130, 95, 60], 0.24, 0.3)
-    cue("game_over.wav", [392, 330, 294, 220, 165], 0.8)
+    from build_hit import main as build_hit
+    build_hit()
+    game_over()
     cue("select.wav", [659, 880], 0.09, 0.14)
