@@ -38,7 +38,7 @@ const DEFINITIONS := [
 	{"id": "vendrell_streetlamp", "worlds": ["vendrell"], "kind": "double_jump", "label": "↑↑ DOBLE SALT", "texture": preload("res://images/obstacles/prepared/vendrell/streetlamp.png"), "height": 180.0},
 	{"id": "vendrell_planter", "worlds": ["vendrell"], "kind": "slide", "label": "↓ LLISCA", "texture": preload("res://images/obstacles/prepared/vendrell/planter.png"), "height": 100.0, "clearance": 66.0, "sensor_ratio": 0.72},
 	{"id": "vendrell_cafe_table", "worlds": ["vendrell"], "kind": "double_jump", "label": "↑↑ DOBLE SALT", "texture": preload("res://images/obstacles/prepared/vendrell/cafe_table.png"), "height": 180.0},
-	{"id": "vendrell_bollard", "worlds": ["vendrell"], "kind": "double_jump", "label": "↑↑ DOBLE SALT", "texture": preload("res://images/obstacles/prepared/vendrell/bollard.png"), "height": 180.0},
+	{"id": "vendrell_tree", "worlds": ["vendrell"], "kind": "double_jump", "label": "↑↑ DOBLE SALT", "texture": preload("res://images/obstacles/prepared/vendrell/tree.png"), "height": 180.0},
 	{"id": "vendrell_parcel", "worlds": ["vendrell"], "kind": "jump", "label": "↑ SALT", "texture": preload("res://images/obstacles/prepared/vendrell/parcel.png"), "height": 72.0},
 	{"id": "datacenter_middle_passage", "worlds": ["datacenter"], "kind": "jump", "label": "↑ NOMÉS UN SALT", "floor_id": "datacenter_firewall", "ceiling_id": "datacenter_rack_servers"},
 	{"id": "botiga_middle_passage", "worlds": ["botiga"], "kind": "jump", "label": "↑ NOMÉS UN SALT", "floor_id": "botiga_laptop", "ceiling_id": "botiga_keyboard"},

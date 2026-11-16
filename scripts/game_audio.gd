@@ -12,6 +12,7 @@ var music_player: AudioStreamPlayer
 var effect_players: Array[AudioStreamPlayer] = []
 var next_effect := 0
 var activated := false
+var impact_tween: Tween
 
 
 func _ready() -> void:
@@ -41,6 +42,9 @@ func activate() -> void:
 
 func start_music() -> void:
 	activate()
+	if impact_tween:
+		impact_tween.kill()
+	music_player.volume_db = 0.0
 	music_player.play(0.0)
 
 
@@ -59,6 +63,13 @@ func apply_settings(music_volume: float, effects_volume: float, music_muted: boo
 func play_effect(cue: String) -> void:
 	if not activated or not EFFECTS.has(cue):
 		return
+	if cue == "hit":
+		if impact_tween:
+			impact_tween.kill()
+		music_player.volume_db = -7.0
+		impact_tween = create_tween()
+		impact_tween.tween_interval(0.12)
+		impact_tween.tween_property(music_player, "volume_db", 0.0, 0.22)
 	var player := effect_players[next_effect]
 	next_effect = (next_effect + 1) % effect_players.size()
 	player.stream = EFFECTS[cue]
