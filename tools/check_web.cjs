@@ -68,7 +68,7 @@ const { chromium } = createRequire(path.resolve(__dirname, '../.godot/web-test/p
         const originalScenery = await page.screenshot({ clip: backdrop });
         await page.keyboard.press('o');
         await page.waitForTimeout(600);
-        assert.ok(await audioLevel() > 0.001, 'Music must actually reach the browser audio output');
+        assert.equal(await audioLevel(), 0, 'Returning to the menu must stop race music');
         // Interact with the exported canvas, including controls that must consume clicks.
         await page.mouse.click(400, 240); // Music volume.
         await page.mouse.click(800, 240); // Mute music.
@@ -85,7 +85,7 @@ const { chromium } = createRequire(path.resolve(__dirname, '../.godot/web-test/p
         assert.equal(await audioLevel(), 0, 'Muted effects must produce no audio');
         await page.mouse.click(800, 240); // Unmute music before testing Master.
         await page.waitForTimeout(150);
-        assert.ok(await audioLevel() > 0.001, 'Unmuting music must restore audio');
+        assert.equal(await audioLevel(), 0, 'Unmuting in the menu must not start race music');
         await page.mouse.click(365, 373); // Master mute.
         await page.waitForTimeout(150);
         assert.equal(await audioLevel(), 0, 'Master mute must silence real browser output');
@@ -115,13 +115,16 @@ const { chromium } = createRequire(path.resolve(__dirname, '../.godot/web-test/p
         const initial = await page.screenshot({ clip: hud });
         await page.mouse.click(500, 320); // Click outside menu buttons to start.
         await page.waitForTimeout(300);
-        assert.notDeepEqual(await page.screenshot({ clip: hud }), initial, 'Space must start the distance counter');
+        assert.notDeepEqual(await page.screenshot({ clip: hud }), initial, 'Click must start the distance counter');
+        assert.ok(await audioLevel() > 0.001, 'Race music must reach the browser audio output');
         await page.keyboard.press('Space');
         await page.waitForTimeout(200);
         await page.screenshot({ path: '.godot/web-test/jump.png' });
         await page.keyboard.press('r');
         await page.waitForTimeout(100);
         assert.deepEqual(await page.screenshot({ clip: hud }), initial, 'R must reset distance, speed and lives');
+        await page.waitForTimeout(200);
+        assert.equal(await audioLevel(), 0, 'Reset must stop race music');
         await page.locator('canvas').click({ position: { x: 500, y: 350 } });
         await page.waitForTimeout(300);
         assert.notDeepEqual(await page.screenshot({ clip: hud }), initial, 'Click must also start the game');
