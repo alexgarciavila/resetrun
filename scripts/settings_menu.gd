@@ -9,8 +9,8 @@ const FONT := preload("res://fonts/press_start_2p/PressStart2P-Regular.ttf")
 const WorldCatalog := preload("res://scripts/world_catalog.gd")
 const WORLDS_PER_PAGE := 4
 
-var selected_world := "datacenter"
-var endless_mode := false
+var selected_world := "vendrell"
+var endless_mode := true
 var preferences_path := SETTINGS_PATH
 var music_volume := 0.4
 var effects_volume := 0.7
@@ -55,14 +55,46 @@ func _build_theme() -> void:
 	theme.default_font_size = 12
 	theme.set_color("font_color", "Label", Color("e4eefb"))
 	for type in ["Button", "CheckButton"]:
-		theme.set_stylebox("normal", type, _box(Color("16283c"), Color("37546f")))
-		theme.set_stylebox("hover", type, _box(Color("203c55"), Color("70d7ff")))
-		theme.set_stylebox("pressed", type, _box(Color("1c4359"), Color("70d7ff")))
-		theme.set_stylebox("focus", type, _box(Color(0, 0, 0, 0), Color("ffffff")))
-	theme.set_stylebox("slider", "HSlider", _box(Color("263f56"), Color("37546f")))
-	theme.set_stylebox("grabber_area", "HSlider", _box(Color("54caff"), Color("54caff")))
-	theme.set_stylebox("grabber_area_highlight", "HSlider", _box(Color("9ae4ff"), Color("9ae4ff")))
+		for state_name in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
+			theme.set_stylebox(state_name, type, _box(Color.TRANSPARENT, Color.TRANSPARENT))
+		theme.set_stylebox("focus", type, _box(Color.TRANSPARENT, Color("ffffff")))
+		theme.set_color("font_color", type, Color.WHITE)
+		theme.set_color("font_hover_color", type, Color.WHITE)
+		theme.set_color("font_pressed_color", type, Color.WHITE)
+	theme.set_stylebox("slider", "HSlider", _box(Color("24222d"), Color("55515f")))
+	theme.set_stylebox("grabber_area", "HSlider", _box(Color("d51f3c"), Color("ff4255")))
+	theme.set_stylebox("grabber_area_highlight", "HSlider", _box(Color("ff4255"), Color("fff5ef")))
+	theme.set_icon("grabber", "HSlider", _slider_handle(false))
+	theme.set_icon("grabber_highlight", "HSlider", _slider_handle(true))
+	theme.set_icon("grabber_disabled", "HSlider", _slider_handle(false))
+	# Hover must use the same dimensions as the normal switch icons.
+	var toggle_on := _toggle_icon(true)
+	var toggle_off := _toggle_icon(false)
+	for suffix in ["", "_disabled", "_mirrored", "_disabled_mirrored"]:
+		theme.set_icon("checked" + suffix, "CheckButton", toggle_on)
+		theme.set_icon("unchecked" + suffix, "CheckButton", toggle_off)
+	for suffix in ["", "_mirrored"]:
+		theme.set_icon("checked_hover" + suffix, "CheckButton", toggle_on)
+		theme.set_icon("unchecked_hover" + suffix, "CheckButton", toggle_off)
+	theme.set_constant("h_separation", "CheckButton", 8)
 
+
+func _slider_handle(highlighted: bool) -> Texture2D:
+	var image := Image.create(16, 26, false, Image.FORMAT_RGBA8)
+	image.fill(Color.TRANSPARENT)
+	image.fill_rect(Rect2i(0, 2, 16, 22), Color("090910"))
+	image.fill_rect(Rect2i(2, 4, 12, 18), Color("ffffff") if highlighted else Color("d9d6df"))
+	image.fill_rect(Rect2i(6, 7, 4, 12), Color("f22e48"))
+	return ImageTexture.create_from_image(image)
+
+
+func _toggle_icon(enabled: bool) -> Texture2D:
+	var image := Image.create(36, 20, false, Image.FORMAT_RGBA8)
+	image.fill(Color.TRANSPARENT)
+	image.fill_rect(Rect2i(0, 1, 36, 18), Color("777381"))
+	image.fill_rect(Rect2i(2, 3, 32, 14), Color("ec2945") if enabled else Color.TRANSPARENT)
+	image.fill_rect(Rect2i(20 if enabled else 4, 5, 12, 10), Color("ffffff"))
+	return ImageTexture.create_from_image(image)
 
 func _box(fill: Color, border: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -88,10 +120,23 @@ func _label(text: String, parent: Node, at: Vector2, dimensions: Vector2, font_s
 	return label
 
 
-func _button(text: String, parent: Node, at: Vector2, dimensions: Vector2, action: Callable) -> Button:
+func _button(text: String, parent: Node, at: Vector2, dimensions: Vector2, action: Callable, use_art: bool = true) -> Button:
 	var button := Button.new()
 	button.text = text
+	button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_place(button, parent, at, dimensions)
+	if use_art:
+		var background := TextureRect.new()
+		background.texture = preload("res://images/ui/button.png")
+		background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		background.show_behind_parent = true
+		button.add_child(background)
+		background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		button.mouse_entered.connect(func(): background.modulate = Color(1.2, 1.2, 1.2))
+		button.mouse_exited.connect(func(): background.modulate = Color(1.0, 0.55, 0.55) if button.toggle_mode and button.button_pressed else Color.WHITE)
+		button.button_down.connect(func(): background.modulate = Color(1.0, 0.55, 0.55))
+		button.button_up.connect(func(): background.modulate = Color(1.0, 0.55, 0.55) if button.toggle_mode and button.button_pressed else Color.WHITE)
 	button.pressed.connect(action)
 	return button
 
@@ -99,13 +144,13 @@ func _button(text: String, parent: Node, at: Vector2, dimensions: Vector2, actio
 func _build_start_menu() -> void:
 	start_menu = HBoxContainer.new()
 	start_menu.add_theme_constant_override("separation", 16)
-	_place(start_menu, self, Vector2(184, 238), Vector2(732, 52))
+	_place(start_menu, self, Vector2(174, 238), Vector2(752, 78))
 	var play := _button("JUGAR", start_menu, Vector2.ZERO, Vector2.ZERO, func(): start_requested.emit())
-	play.custom_minimum_size = Vector2(180, 52)
+	play.custom_minimum_size = Vector2(240, 78)
 	worlds_button = _button("MONS", start_menu, Vector2.ZERO, Vector2.ZERO, open_worlds)
-	worlds_button.custom_minimum_size = Vector2(200, 52)
-	options_button = _button("SO", start_menu, Vector2.ZERO, Vector2.ZERO, open_options)
-	options_button.custom_minimum_size = Vector2(320, 52)
+	worlds_button.custom_minimum_size = Vector2(240, 78)
+	options_button = _button("AJUSTAMENTS", start_menu, Vector2.ZERO, Vector2.ZERO, open_options)
+	options_button.custom_minimum_size = Vector2(240, 78)
 	mode_menu = HBoxContainer.new()
 	mode_menu.add_theme_constant_override("separation", 16)
 	_place(mode_menu, self, Vector2(310, 178), Vector2(480, 42))
@@ -127,6 +172,10 @@ func set_endless(enabled: bool) -> void:
 func _update_mode_buttons() -> void:
 	fixed_mode_button.set_pressed_no_signal(not endless_mode)
 	endless_mode_button.set_pressed_no_signal(endless_mode)
+	fixed_mode_button.text = "[X] MÓN FIX" if not endless_mode else "[ ] MÓN FIX"
+	endless_mode_button.text = "[X] SENSE FI" if endless_mode else "[ ] SENSE FI"
+	for button in [fixed_mode_button, endless_mode_button]:
+		button.get_child(0).modulate = Color(1.0, 0.55, 0.55) if button.button_pressed else Color.WHITE
 
 
 func _build_worlds() -> void:
@@ -139,17 +188,21 @@ func _build_worlds() -> void:
 	_place(shade, worlds_modal, Vector2.ZERO, Vector2(1100, 640))
 	var panel := Panel.new()
 	panel.add_theme_stylebox_override("panel", _box(Color("0d192a"), Color("54caff")))
-	_place(panel, worlds_modal, Vector2(140, 52), Vector2(820, 536))
+	_place(panel, worlds_modal, Vector2(140, 28), Vector2(820, 584))
 	_label("TRIA EL TEU MÓN", panel, Vector2(30, 24), Vector2(760, 32), 24)
 	_label("Cada món, una nova cursa.", panel, Vector2(30, 68), Vector2(760, 20))
 	for index in range(WORLDS_PER_PAGE):
 		var at := Vector2(30 + (index % 2) * 380, 104 + floori(float(index) / 2) * 170)
-		var card := _button("", panel, at, Vector2(360, 154), _select_world_slot.bind(index))
+		var card := _button("", panel, at, Vector2(360, 154), _select_world_slot.bind(index), false)
 		card.toggle_mode = true
-		card.add_theme_stylebox_override("disabled", _box(Color("111e30"), Color("2b3b51")))
-		card.add_theme_stylebox_override("pressed", _box(Color("18354a"), Color("54caff")))
+		card.clip_contents = true
+		card.add_theme_stylebox_override("normal", _box(Color("13131e"), Color("585364")))
+		card.add_theme_stylebox_override("hover", _box(Color("242131"), Color("ffffff")))
+		card.add_theme_stylebox_override("pressed", _box(Color("341a27"), Color("ff354d")))
+		card.add_theme_stylebox_override("disabled", _box(Color("15151b"), Color("35333c")))
 		world_buttons.append(card)
 		var preview := TextureRect.new()
+		preview.clip_contents = true
 		preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -157,18 +210,20 @@ func _build_worlds() -> void:
 		world_previews.append(preview)
 		world_titles.append(_label("", card, Vector2(14, 106), Vector2(332, 18)))
 		var badge := _label("", card, Vector2(14, 132), Vector2(332, 16), 10)
-		badge.modulate = Color("9ae4ff")
+		badge.modulate = Color("ff8793")
 		world_badges.append(badge)
-	previous_worlds = _button("←", panel, Vector2(30, 452), Vector2(56, 44), _change_world_page.bind(-1))
-	world_page_label = _label("", panel, Vector2(94, 464), Vector2(96, 20))
+	previous_worlds = _button("←", panel, Vector2(30, 500), Vector2(56, 44), _change_world_page.bind(-1))
+	world_page_label = _label("", panel, Vector2(94, 512), Vector2(96, 20))
 	world_page_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	next_worlds = _button("→", panel, Vector2(196, 452), Vector2(56, 44), _change_world_page.bind(1))
-	world_selection_label = _label("", panel, Vector2(30, 512), Vector2(760, 16), 10)
-	_button("JUGAR", panel, Vector2(430, 452), Vector2(160, 44), func():
+	next_worlds = _button("→", panel, Vector2(196, 500), Vector2(56, 44), _change_world_page.bind(1))
+	world_selection_label = _label("", panel, Vector2(30, 560), Vector2(760, 16), 10)
+	_button("JUGAR", panel, Vector2(430, 500), Vector2(160, 44), func():
 		close_worlds()
 		start_requested.emit()
 	)
-	_button("TORNAR", panel, Vector2(606, 452), Vector2(184, 44), close_worlds)
+	_button("TORNAR", panel, Vector2(606, 500), Vector2(184, 44), close_worlds)
+	mode_menu.reparent(panel)
+	mode_menu.position = Vector2(170, 444)
 	_update_world_cards()
 	worlds_modal.hide()
 
@@ -203,7 +258,7 @@ func _update_world_cards() -> void:
 		world_buttons[slot].set_pressed_no_signal(world.id == selected_world)
 		world_previews[slot].texture = world.get("background")
 		world_titles[slot].text = "%02d / %s" % [index + 1, world.title.to_upper()]
-		world_badges[slot].text = "SELECCIONAT" if world.id == selected_world else ("SELECCIONAR" if world.available else "PROPERAMENT")
+		world_badges[slot].text = "SELECCIONAT" if world.id == selected_world else ""
 
 
 func select_world(id: String) -> void:
@@ -226,6 +281,7 @@ func open_worlds() -> void:
 			world_page = floori(float(index) / WORLDS_PER_PAGE)
 	_update_world_cards()
 	worlds_modal.show()
+	mode_menu.show()
 	for slot in range(world_buttons.size()):
 		if world_buttons[slot].button_pressed:
 			world_buttons[slot].grab_focus()
@@ -236,7 +292,7 @@ func close_worlds() -> void:
 	worlds_open = false
 	worlds_modal.hide()
 	start_menu.show()
-	mode_menu.show()
+	mode_menu.hide()
 	worlds_button.grab_focus()
 	audio_requested.emit()
 
@@ -324,14 +380,14 @@ func close_options() -> void:
 	options_open = false
 	modal.hide()
 	start_menu.show()
-	mode_menu.show()
+	mode_menu.hide()
 	options_button.grab_focus()
 	audio_requested.emit()
 
 
 func show_start_menu(visible_menu: bool) -> void:
 	start_menu.visible = visible_menu
-	mode_menu.visible = visible_menu
+	mode_menu.hide()
 	if not visible_menu:
 		options_open = false
 		modal.hide()
@@ -368,8 +424,8 @@ func _load_preferences() -> void:
 	var config := ConfigFile.new()
 	if config.load(preferences_path) != OK:
 		return
-	selected_world = WorldCatalog.get_world(str(config.get_value("world", "selected", "datacenter"))).id
-	endless_mode = bool(config.get_value("game", "endless", false))
+	selected_world = "vendrell"
+	endless_mode = true
 	music_volume = clampf(float(config.get_value("audio", "music_volume", 0.4)), 0, 1)
 	effects_volume = clampf(float(config.get_value("audio", "effects_volume", 0.7)), 0, 1)
 	music_muted = bool(config.get_value("audio", "music_muted", false))

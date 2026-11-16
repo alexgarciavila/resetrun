@@ -3,6 +3,12 @@ extends RefCounted
 
 const WORLDS := [
 	{
+		"id": "vendrell", "title": "El Vendrell", "available": true,
+		"background": preload("res://images/background/vendrell.png"),
+		"walkway_ratio": 0.75,
+	},
+
+	{
 		"id": "datacenter",
 		"title": "Centre de dades",
 		"available": true,
@@ -42,11 +48,6 @@ const WORLDS := [
 		"background": preload("res://images/background/taller2.png"),
 		"background_height": 480.0,
 		"walkway_ratio": 0.94,
-	},
-	{
-		"id": "vendrell", "title": "El Vendrell", "available": true,
-		"background": preload("res://images/background/vendrell.png"),
-		"walkway_ratio": 0.75,
 	},
 ]
 
