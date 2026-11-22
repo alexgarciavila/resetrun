@@ -90,7 +90,9 @@ body {
 	z-index: 1;
 }
 		</style>
-		<style>@media (pointer: coarse) and (orientation: portrait) and (max-width: 600px) { body::after { content: "Gira el mòbil per jugar"; position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; background: #11151f; color: #e4eefb; font: bold 1.25rem system-ui; } }</style>
+		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
+<link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
+<style>@media (pointer: coarse) and (orientation: portrait) and (max-width: 600px) { body::after { content: "Gira el mòbil per jugar"; position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; background: #11151f; color: #e4eefb; font: bold 1.25rem system-ui; } }</style>
 	</head>
 	<body>
 		<canvas id="canvas">
@@ -110,7 +112,7 @@ body {
 		<script src="index.js"></script>
 		<script>
 document.getElementById("canvas").addEventListener("contextmenu", (event) => event.preventDefault());
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":28944468,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":28961484,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
